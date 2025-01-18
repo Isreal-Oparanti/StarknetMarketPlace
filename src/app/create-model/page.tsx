@@ -1,7 +1,9 @@
 "use client";
 
 import { createDocument } from "@/appwriteconfig/dbconnet";
+import { useAccount } from "@starknet-react/core";
 import { Client, Storage, ID } from "appwrite";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const client = new Client()
@@ -19,6 +21,8 @@ const CreateModel: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const { address, status } = useAccount();
+  const router = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -65,12 +69,16 @@ const CreateModel: React.FC = () => {
         name,
         description,
         price: Number(price),
-        wallet,
+        wallet: address,
         fileId,
       };
 
       const response = await createDocument(databaseId, collectionId, data);
       setMessage("Document created successfully!");
+
+      setTimeout(() => {
+        router.push("/model-listing");
+      }, 1500);
       console.log(response);
     } catch (error) {
       setMessage("Failed to create document.");
@@ -81,8 +89,8 @@ const CreateModel: React.FC = () => {
   };
 
   return (
-    <div className="p-6 max-w-md mx-auto bg-white rounded shadow-md">
-      <h2 className="text-lg font-bold mb-4">Create a New Document</h2>
+    <div className="p-6 max-w-md mx-auto my-[50px] bg-white rounded shadow-md text-black">
+      <h2 className="text-lg font-bold mb-4">Create a AI Model</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium">Name</label>
@@ -114,11 +122,11 @@ const CreateModel: React.FC = () => {
             required
           />
         </div>
-        <div>
+        <div className="hidden">
           <label className="block text-sm font-medium">Wallet Address</label>
           <input
             type="text"
-            value={wallet}
+            value={address || ""}
             onChange={(e) => setWallet(e.target.value)}
             className="w-full border rounded px-2 py-1"
             required
