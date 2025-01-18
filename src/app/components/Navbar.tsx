@@ -16,14 +16,14 @@ export const Navbar = () => {
   const handleConnect = async (connector: any) => {
     try {
       await connect({ connector });
-      setModalOpen(false); // Close modal on successful connection
+      setModalOpen(false); 
 
-      // Save connection state to localStorage
+      
       if (status === "connected" && address) {
         console.log("Wallet connected, storing state in localStorage");
         localStorage.setItem("walletConnected", "true");
         localStorage.setItem("walletAddress", address);
-        router.push("/models"); // Redirect to models page
+        router.push("/model");
       }
     } catch (error) {
       console.error("Connection failed:", error);
@@ -33,11 +33,11 @@ export const Navbar = () => {
   const handleDisconnect = () => {
     disconnect();
 
-    // Clear connection state from localStorage
+     
     console.log("Wallet disconnected, clearing localStorage");
     localStorage.removeItem("walletConnected");
     localStorage.removeItem("walletAddress");
-    router.push("/"); // Redirect to landing page
+    router.push("/");
   };
 
   useEffect(() => {
