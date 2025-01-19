@@ -16,6 +16,7 @@ const CreateModel: React.FC = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState<number | string>("");
+  const [author, setAuthor] = useState(""); // New state for the author
   const [wallet, setWallet] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -69,6 +70,7 @@ const CreateModel: React.FC = () => {
         name,
         description,
         price: Number(price),
+        author,
         wallet: address,
         fileId,
       };
@@ -122,6 +124,16 @@ const CreateModel: React.FC = () => {
             required
           />
         </div>
+        <div>
+          <label className="block text-sm font-medium">Author</label>
+          <input
+            type="text"
+            value={author}
+            onChange={(e) => setAuthor(e.target.value)}
+            className="w-full border rounded px-2 py-1"
+            required
+          />
+        </div>
         <div className="hidden">
           <label className="block text-sm font-medium">Wallet Address</label>
           <input
@@ -142,10 +154,21 @@ const CreateModel: React.FC = () => {
         </div>
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded"
+          className="w-full bg-[#A263F7] text-white py-2 rounded"
           disabled={loading}
         >
-          {loading ? "Creating..." : "Create Document"}
+          {loading ? (
+            <div className="flex justify-center items-center">
+              <div
+                className="spinner-border animate-spin inline-block w-8 h-8 border-4 border-solid rounded-full border-t-transparent border-[#A263F7]"
+                role="status"
+              >
+                <span className="sr-only">Loading...</span>
+              </div>
+            </div>
+          ) : (
+            "Create Document"
+          )}
         </button>
       </form>
       {message && <p className="mt-4 text-center text-green-500">{message}</p>}

@@ -13,13 +13,15 @@ import { useRouter } from "next/navigation";
 
 export const Navbar = () => {
   const [isModalOpen, setModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false); // New loading state
+  const [loading, setLoading] = useState(false);
   const [storedAddress, setStoredAddress] = useState<string | null>(null);
   const connectors = [braavos(), argent()];
   const { connect } = useConnect();
   const { disconnect } = useDisconnect();
   const { address, status } = useAccount();
   const router = useRouter();
+  const [currentPath, setCurrentPath] = useState("");
+  const [linkPath, setLinkPath] = useState("");
 
   const handleConnect = async (connector: any) => {
     setLoading(true);
@@ -38,8 +40,8 @@ export const Navbar = () => {
     try {
       disconnect();
       console.log("Wallet disconnected");
-      localStorage.removeItem("walletAddress"); // Remove address from localStorage
-      setStoredAddress(null); // Clear the stored address in state
+      localStorage.removeItem("walletAddress");
+      setStoredAddress(null);
       router.push("/");
     } catch (error) {
       console.error("Disconnection failed:", error);
@@ -48,17 +50,15 @@ export const Navbar = () => {
     }
   };
 
-  // Sync wallet address with localStorage when connected
   useEffect(() => {
     if (status === "connected" && address) {
       console.log("Wallet connected");
-      localStorage.setItem("walletAddress", address); // Store address in localStorage
-      setStoredAddress(address); // Update state
+      localStorage.setItem("walletAddress", address);
+      setStoredAddress(address);
       router.push("/create-model");
     }
   }, [status, address, router]);
 
-  // Get wallet address from localStorage on page load
   useEffect(() => {
     const savedAddress = localStorage.getItem("walletAddress");
     if (savedAddress) {
@@ -66,9 +66,18 @@ export const Navbar = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const path = window.location.pathname;
+    setCurrentPath(path);
+
+    const newLinkPath =
+      path === "/model-listing" ? "/create-model" : "/model-listing";
+    setLinkPath(newLinkPath);
+  }, []);
+
   return (
     <>
-      <nav className="bg-gray-800 border-gray-800 text-white shadow-2xl">
+      <nav className="bg-black bg-gradient-to-r from-black via-[#57328a] to-black text-white shadow-2xl border-b border-gray-700">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="text-xl font-bold">
             <img src="/manu.png" alt="logo" className="w-10 inline" />
@@ -76,18 +85,29 @@ export const Navbar = () => {
               AI Nexa
             </Link>
           </div>
-
-          <div>
+          <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
+              {linkPath && (
+                <a
+                  href={linkPath}
+                  className="p-2 rounded underline text-[#A263F7]"
+                >
+                  {currentPath === "/model-listing"
+                    ? "Create Model"
+                    : "Go to Listing Page"}
+                </a>
+              )}
+            </div>
             {storedAddress ? (
               <div className="flex items-center gap-4">
-                <span className="text-purple-700 font-bold px-4 py-2 rounded-lg">
+                <span className="text-[#A263F7] font-bold px-4 py-2 rounded-lg">
                   Connected: {storedAddress.substring(0, 6)}...
                   {storedAddress.substring(storedAddress.length - 4)}
                 </span>
                 <button
                   onClick={handleDisconnect}
                   className="p-2 bg-red-600 text-white rounded hover:bg-red-700"
-                  disabled={loading} // Disable button when loading
+                  disabled={loading}
                 >
                   {loading ? "Disconnecting..." : "Disconnect"}
                 </button>
@@ -95,10 +115,14 @@ export const Navbar = () => {
             ) : (
               <button
                 onClick={() => setModalOpen(true)}
-                className="p-2 pr-4 pl-4 bg-purple-900 text-white rounded hover:bg-purple-700 m-2"
-                disabled={loading} // Disable button when loading
+                className="p-2 pr-4 pl-4 text-[#A263F7] text-white rounded hover:text-[#A263F7] m-2"
+                disabled={loading}
               >
-                {loading ? "Connecting..." : "Connect Wallet"}
+                {loading ? (
+                  <div className="spinner-border animate-spin border-4 border-t-4 border-white rounded-full w-6 h-6"></div>
+                ) : (
+                  "Connect Wallet"
+                )}
               </button>
             )}
           </div>
@@ -115,7 +139,7 @@ export const Navbar = () => {
                   key={index}
                   onClick={() => handleConnect(connector)}
                   className="p-2 border border-purple-800 rounded hover:bg-gray-800 rounded-xl font-bold"
-                  disabled={loading} // Disable buttons when loading
+                  disabled={loading}
                 >
                   {loading ? "Connecting..." : connector.id || "Unknown Wallet"}
                 </button>
@@ -124,7 +148,7 @@ export const Navbar = () => {
             <button
               onClick={() => setModalOpen(false)}
               className="mt-6 p-2 bg-red-600 text-white rounded hover:bg-red-700 w-full"
-              disabled={loading} // Disable button when loading
+              disabled={loading}
             >
               Cancel
             </button>
