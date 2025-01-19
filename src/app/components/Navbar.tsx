@@ -63,7 +63,7 @@ export const Navbar = () => {
       console.log("Wallet connected");
       localStorage.setItem("walletAddress", address);
       setStoredAddress(address);
-      router.push("/create-model");
+      router.push("/model-listing");
     }
   }, [status, address, router]);
 
@@ -95,7 +95,7 @@ export const Navbar = () => {
           </div>
           <div className="flex items-center gap-1">
             <div className="flex items-center gap-2">
-              {linkPath && (
+              {/* {linkPath && (
                 <a
                   href={linkPath}
                   className="p-2 rounded underline text-[#A263F7]"
@@ -104,7 +104,7 @@ export const Navbar = () => {
                     ? "Create Model"
                     : "Go to Listing Page"}
                 </a>
-              )}
+              )} */}
             </div>
             {storedAddress ? (
               <div className="flex items-center gap-4">
@@ -123,7 +123,7 @@ export const Navbar = () => {
             ) : (
               <button
                 onClick={() => setModalOpen(true)}
-                className="p-2 pr-4 pl-4 text-[#A263F7] text-white rounded hover:text-[#A263F7] m-2"
+                className="p-2 pr-4 pl-4 bg-purple-800 text-[#A263F7] text-white rounded hover:bg-purple-900 hover:bg-white m-2"
                 disabled={loading}
               >
                 {loading ? (
