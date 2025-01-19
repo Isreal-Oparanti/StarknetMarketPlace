@@ -15,7 +15,8 @@
     "next": "15.1.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "safe-stable-stringify": "^2.5.0"
+    "safe-stable-stringify": "^2.5.0",
+    "starknetkit": "^2.6.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

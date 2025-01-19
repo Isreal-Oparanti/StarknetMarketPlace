@@ -8,6 +8,7 @@ import {
   braavos,
   argent,
   useAccount,
+  useBalance,
 } from "@starknet-react/core";
 import { useRouter } from "next/navigation";
 
