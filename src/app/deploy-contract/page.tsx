@@ -1,83 +1,68 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { connect } from "starknetkit";
+
 import {
-  useUniversalDeployerContract,
-  useSendTransaction,
-  useAccount,
-} from "@starknet-react/core";
+  type ConnectOptions,
+  type DisconnectOptions,
+  connect,
+  disconnect,
+} from "get-starknet";
+import { AccountInterface, wallet } from "starknet";
+import { useState } from "react";
+import { TokenBalanceAndTransfer } from "../components/TokenBalanceAndTransfer";
 
-function DeployERC20() {
-  const [walletAddress, setWalletAddress] = useState<any>(null);
-  const { address } = useAccount(); // Get the connected wallet address
-  const { udc } = useUniversalDeployerContract();
+function App() {
+  const [walletName, setWalletName] = useState("");
+  const [walletAddress, setWalletAddress] = useState("");
+  const [walletIcon, setWalletIcon] = useState("");
+  const [walletAccount, setWalletAccount] = useState<AccountInterface | null>(
+    null
+  );
 
-  // Function to connect wallet when button is clicked
-  const connectToStarknet = async () => {
-    try {
-      const { wallet, connectorData } = await connect({
-        modalMode: "canAsk", // Try connecting silently, ask if needed
-        modalTheme: "light", // Light theme for the modal
-        dappName: "My Starknet dApp", // Custom name for your dApp
-        resultType: "wallet", // Return wallet object
-      });
+  async function handleConnect(options?: ConnectOptions) {
+    const res = await connect(options);
+    setWalletName(res?.name || "");
+    setWalletAddress(res?.account?.address || "");
+    setWalletIcon(res?.icon || "");
+    setWalletAccount(res?.account as unknown as AccountInterface);
+  }
 
-      // Log the success response
-      console.log("Wallet connected successfully:", wallet);
-      console.log("Connector data:", connectorData?.account);
-      setWalletAddress(connectorData?.account);
-    } catch (error) {
-      console.error("Failed to connect wallet:", error);
-    }
-  };
-
-  const { send, isPending, error, data } = useSendTransaction({
-    calls:
-      udc && walletAddress // Ensure walletAddress is available
-        ? [
-            udc.populate("deploy_contract", [
-              "Starknet Contract", // Token name
-              23, // Salt (ensure it's the correct value)
-              false, // fromZero (boolean)
-              [walletAddress], // Owner address (wrapped in an array)
-            ]),
-          ]
-        : undefined,
-  });
-
-  useEffect(() => {
-    if (address) {
-      setWalletAddress(address); // Automatically set wallet address if already connected
-    }
-  }, [address]);
+  async function handleDisconnect(options?: DisconnectOptions) {
+    await disconnect(options);
+    setWalletName("");
+    setWalletAddress("");
+    setWalletAccount(null);
+  }
 
   return (
-    <div>
-      <div>
-        {walletAddress ? (
-          <p>Connected Address: {walletAddress}</p>
-        ) : (
-          <p>Wallet is not connected. Please connect your wallet.</p>
-        )}
-      </div>
-
-      {/* Button to open the connect modal */}
-      <button onClick={connectToStarknet}>Connect Wallet</button>
-
-      {/* Button to trigger the contract deployment if wallet is connected */}
-      {walletAddress && (
-        <button onClick={() => send()} disabled={isPending}>
-          {isPending ? "Deploying..." : "Deploy ERC20"}
+    <div className="App">
+      <h1>get-starknet</h1>
+      <div className="card">
+        <button onClick={() => handleConnect({ modalMode: "alwaysAsk" })}>
+          Connect
         </button>
+        <button onClick={() => handleDisconnect()}>Disconnect</button>
+      </div>
+      {walletName && (
+        <div>
+          <h2>
+            Selected Wallet: <pre>{walletName}</pre>
+            <img src={walletIcon} alt="Wallet icon" />
+          </h2>
+          <ul>
+            <li>
+              Wallet address: <pre>{walletAddress}</pre>
+            </li>
+          </ul>
+        </div>
       )}
-
-      {/* Error handling */}
-      {error && <div style={{ color: "red" }}>Error: {error.message}</div>}
-
-      {/* Displaying transaction data */}
-      {data && <div>Transaction Data: {JSON.stringify(data)}</div>}
+      {walletAccount && (
+        <TokenBalanceAndTransfer
+          account={walletAccount}
+          tokenAddress="0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d"
+        />
+      )}
     </div>
   );
 }
 
-export default DeployERC20;
+export default App;
