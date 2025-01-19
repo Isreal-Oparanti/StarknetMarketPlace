@@ -25,7 +25,7 @@ export const Navbar = () => {
         localStorage.setItem("walletAddress", address);
         router.push("/model");
       }
-    } catch (error) {
+    } catch (error) {   
       console.error("Connection failed:", error);
     }
   };
